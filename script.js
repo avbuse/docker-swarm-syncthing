@@ -7,9 +7,9 @@ process.on('SIGTERM', function () { process.exit() })
 const debug = false
 
 const KEY = process.env.STGUIAPIKEY || ''
-const SECS = process.env.SYNCTHING_SLEEP || '60'
+const SECS = process.env.SLEEP_SECONDS || '60'
 const PORT = process.env.SYNCTHING_PORT || '8384'
-const SC_SRV_NAME = process.env.SC_SRV_NAME || 'aaaaaaaaaaaaaa'
+const SC_SRV_NAME = process.env.SC_SRV_NAME || 'syncthing_server'
 
 function arraysEqual(a1, a2) {
     return JSON.stringify(a1.sort()) == JSON.stringify(a2.sort());
@@ -156,11 +156,12 @@ async function addDevicesToFolder(ips, ids, name) {
 
 async function run() {
     const ips = await getDockerServiceIPs(SC_SRV_NAME)
-    console.log('Got IPs from Docker Swarm', ips)
+    console.log('Got Syncthing IPs:', ips)
     const ids = await getAllSyncthingIDs(ips)
-    console.log('Got IDs from Syncthing', ids)
-    const updatedDevices = await addMissingSyncthingDevices(ips, ids)
-    const updatedFolders = await addDevicesToFolder(ips, ids, 'default')
+    console.log('Got Syncthing IDs:', ids)
+    await addMissingSyncthingDevices(ips, ids)
+    await addDevicesToFolder(ips, ids, 'default')
+    console.log("Finished tasks, waiting...")
 }
 
 while (true) {
@@ -169,6 +170,5 @@ while (true) {
     } catch (e) {
         console.error(e.message)
     }
-    console.log('----- going to sleep for ' + SECS + ' seconds -----')
     await sleep(SECS * 1000)
 }
