@@ -4,12 +4,10 @@ import axios from 'axios'
 process.on('SIGINT', function () { process.exit() })
 process.on('SIGTERM', function () { process.exit() })
 
-const debug = false
-
-const KEY = process.env.STGUIAPIKEY || ''
-const SECS = process.env.SLEEP_SECONDS || '60'
-const PORT = process.env.SYNCTHING_PORT || '8384'
-const SC_SRV_NAME = process.env.SC_SRV_NAME || 'syncthing_server'
+const ST_API_KEY = process.env.STGUIAPIKEY || ''
+const SLEEP_SECONDS = process.env.SLEEP_SECONDS || '60'
+const ST_PORT = process.env.SYNCTHING_PORT || '8384'
+const ST_SRV_NAME = process.env.ST_SRV_NAME || 'syncthing_server'
 
 function arraysEqual(a1, a2) {
     return JSON.stringify(a1.sort()) == JSON.stringify(a2.sort());
@@ -56,7 +54,7 @@ async function getSyncthing(url) {
     const options = {
         headers: {
             'Content-Type': 'application/json',
-            'X-API-Key': KEY,
+            'X-API-Key': ST_API_KEY,
         }
     }
     const response = await axios.get(url, options);
@@ -68,7 +66,7 @@ async function postSyncthing(url, post) {
     const options = {
         headers: {
             'Content-Type': 'application/json',
-            'X-API-Key': KEY,
+            'X-API-Key': ST_API_KEY,
         }
     }
     const response = await axios.post(url, post, options);
@@ -80,7 +78,7 @@ async function patchSyncthing(url, patch) {
     const options = {
         headers: {
             'Content-Type': 'application/json',
-            'X-API-Key': KEY,
+            'X-API-Key': ST_API_KEY,
         }
     }
     const response = await axios.patch(url, patch, options);
@@ -89,7 +87,7 @@ async function patchSyncthing(url, patch) {
 
 // get myID of a Syncthing instance
 async function getSyncthingID(ip) {
-    const url = 'http://' + ip + ':' + PORT + '/rest/system/status'
+    const url = 'http://' + ip + ':' + ST_PORT + '/rest/system/status'
     const data = await getSyncthing(url)
     return data.myID
 }
@@ -106,14 +104,14 @@ async function getAllSyncthingIDs(ips) {
 
 // get devices of a Syncthing instance
 async function getSyncthingDevices(ip) {
-    const url = 'http://' + ip + ':' + PORT + '/rest/config/devices'
+    const url = 'http://' + ip + ':' + ST_PORT + '/rest/config/devices'
     const data = await getSyncthing(url)
     return data.map(d => d.deviceID)
 }
 
 // add a device to a Syncthing instance
 async function addSyncthingDevice(ip, device) {
-    const url = 'http://' + ip + ':' + PORT + '/rest/config/devices'
+    const url = 'http://' + ip + ':' + ST_PORT + '/rest/config/devices'
     const post = {
         deviceID: device,
         autoAcceptFolders: true
@@ -138,7 +136,7 @@ async function addMissingSyncthingDevices(ips, ids) {
 // add devices to folder of every Syncthing instance
 async function addDevicesToFolder(ips, ids, name) {
     for (let ip of ips) {
-        const url = 'http://' + ip + ':' + PORT + '/rest/config/folders/' + name
+        const url = 'http://' + ip + ':' + ST_PORT + '/rest/config/folders/' + name
         let folder = await getSyncthing(url)
         let devices = folder.devices.map(d => d.deviceID)
         if (!arraysEqual(ids, devices)) {
@@ -155,7 +153,7 @@ async function addDevicesToFolder(ips, ids, name) {
 }
 
 async function run() {
-    const ips = await getDockerServiceIPs(SC_SRV_NAME)
+    const ips = await getDockerServiceIPs(ST_SRV_NAME)
     console.log('Got Syncthing IPs:', ips)
     const ids = await getAllSyncthingIDs(ips)
     console.log('Got Syncthing IDs:', ids)
@@ -170,5 +168,5 @@ while (true) {
     } catch (e) {
         console.error(e.message)
     }
-    await sleep(SECS * 1000)
+    await sleep(SLEEP_SECONDS * 1000)
 }

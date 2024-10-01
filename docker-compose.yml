@@ -8,7 +8,6 @@ services:
       - syncthing
     environment:
       - STGUIAPIKEY=A1B2C3
-      # - STNODEFAULTFOLDER=1
     deploy:
       mode: global
 
@@ -21,7 +20,8 @@ services:
       - syncthing
     environment:
       - STGUIAPIKEY=A1B2C3
-      - SC_SRV_NAME=syncthing_server
+      - ST_SRV_NAME=syncthing_server
+      # - SLEEP_SECONDS=30
     deploy:
       replicas: 1
       placement:
