@@ -12,7 +12,7 @@ services:
       mode: global
 
   controller:
-    image: ghcr.io/autotren/docker-swarm-syncthing:main
+    image: ghcr.io/avbuse/docker-swarm-syncthing:main
     hostname: '{{.Node.Hostname}}'
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
