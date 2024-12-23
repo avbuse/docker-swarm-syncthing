@@ -1,13 +1,13 @@
 services:
-  server:
-    image: syncthing/syncthing:1.27
+  node:
+    image: syncthing/syncthing:latest
     hostname: '{{.Node.Hostname}}'
     volumes:
-      - /data/syncthing:/var/syncthing
+      - /var/syncthing:/var/syncthing
     networks:
       - syncthing
     environment:
-      - STGUIAPIKEY=A1B2C3
+      - STGUIAPIKEY=Z97815JH
     deploy:
       mode: global
 
@@ -19,8 +19,8 @@ services:
     networks:
       - syncthing
     environment:
-      - STGUIAPIKEY=A1B2C3
-      - ST_SRV_NAME=syncthing_server
+      - STGUIAPIKEY=Z97815JH
+      - ST_SRV_NAME=syncthing_node
       # - SLEEP_SECONDS=30
     deploy:
       replicas: 1
